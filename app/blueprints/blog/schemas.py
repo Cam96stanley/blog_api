@@ -1,7 +1,7 @@
 from marshmallow import fields
 from marshmallow.validate import Length
 from app.extenstions import ma
-from app.models import Blog
+from app.models import Blog, Comment
 from app.blueprints.user.schemas import UserSchema
 
 
@@ -28,8 +28,38 @@ class ReturnBlogSchema(ma.SQLAlchemyAutoSchema):
   author = fields.Nested(UserSchema(only=("id", "username", "name")), dump_only=True)
 
 
+class CreateCommentSchema(ma.Schema):
+  content = fields.String(required=True, validate=Length(min=1, max=250))
+  user_id = fields.Integer(load_only=True)
+  post_id = fields.Integer(load_only=True)
+
+class CommentSchema(ma.SQLAlchemyAutoSchema):
+  class Meta:
+    model = Comment
+    load_instance = True
+    include_fk = True
+  
+  updated_at = fields.DateTime(dump_only=True)
+
+
+class ReturnCommentSchema(ma.SQLAlchemyAutoSchema):
+  class Meta:
+    model = Comment
+    load_instance = True
+    include_fk = True
+    exclude=("user_id",)
+  
+  user = fields.Nested(UserSchema(only=("id", "username", "name")), dump_only=True)
+
+
 create_blog_schema = CreateBlogSchema()
 blog_schema = BlogSchema()
 blogs_schema = BlogSchema(many=True)
 return_blog_schema = ReturnBlogSchema()
 return_blogs_schema = ReturnBlogSchema(many=True)
+
+create_comment_schema = CreateCommentSchema()
+comment_schema = CommentSchema()
+comments_schema = CommentSchema(many=True)
+return_comment_schema = ReturnCommentSchema()
+return_comments_schema = ReturnCommentSchema(many=True)

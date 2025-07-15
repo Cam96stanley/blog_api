@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, String, DateTime, Boolean
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from typing import List
 
 class Base(DeclarativeBase):
@@ -39,6 +39,11 @@ class Blog(Base):
     DateTime(timezone=True),
     default=lambda: datetime.now(timezone.utc)
   )
+  updated_at: Mapped[datetime] = mapped_column(
+    DateTime(timezone=True),
+    default=lambda: datetime.now(timezone.utc),
+    onupdate=lambda: datetime.now(timezone.utc)
+  )
   is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
   author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
   
@@ -53,10 +58,17 @@ class Comment(Base):
   
   id: Mapped[int] = mapped_column(primary_key=True)
   content: Mapped[str] = mapped_column(String(250), nullable=False)
+  is_updated: Mapped[bool] = mapped_column(Boolean, default=False)
   created_at: Mapped[datetime] = mapped_column(
     DateTime(timezone=True),
     default=lambda: datetime.now(timezone.utc)
   )
+  updated_at: Mapped[datetime] = mapped_column(
+    DateTime(timezone=True),
+    default=lambda: datetime.now(timezone.utc),
+    onupdate=lambda: datetime.now(timezone.utc)
+  )
+  is_archived: Mapped[bool] = mapped_column(Boolean, default=False)
   user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
   post_id: Mapped[int] = mapped_column(ForeignKey("blogs.id"))
   
