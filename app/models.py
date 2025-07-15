@@ -17,7 +17,7 @@ class User(Base):
   name: Mapped[str] = mapped_column(String(150), nullable=False)
   username: Mapped[str] = mapped_column(String(150), nullable=False)
   email: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
-  password: Mapped[str] = mapped_column(String(50), nullable=False)
+  password: Mapped[str] = mapped_column(String(150), nullable=False)
   created_at: Mapped[datetime] = mapped_column(
     DateTime(timezone=True),
     default=lambda: datetime.now(timezone.utc)
@@ -26,6 +26,7 @@ class User(Base):
   blogs: Mapped[List["Blog"]] = relationship(back_populates="author", cascade="all, delete-orphan")
   comments: Mapped[List["Comment"]] = relationship(back_populates="user", cascade="all, delete-orphan")
   likes: Mapped[List["Like"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+
 
 
 class Blog(Base):
@@ -43,6 +44,7 @@ class Blog(Base):
   author: Mapped["User"] = relationship(back_populates="blogs")
   comments: Mapped[List["Comment"]] = relationship(back_populates="post", cascade="all, delete-orphan")
   likes: Mapped[List["Like"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+
 
 
 class Comment(Base):
