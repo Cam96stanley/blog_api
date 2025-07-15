@@ -1,9 +1,8 @@
 from flask import request, jsonify, current_app
 from marshmallow import ValidationError
-from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from app.models import db, User
-from app.blueprints.user.schemas import user_schema, users_schema, create_user_schema
+from app.blueprints.user.schemas import user_schema, create_user_schema
 from app.blueprints.user import user_bp
 from utils.auth import hash_password, check_password, generate_token, token_required
 
