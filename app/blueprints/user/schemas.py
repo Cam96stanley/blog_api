@@ -1,7 +1,7 @@
 from marshmallow import fields
+from marshmallow.validate import Length
 from app.models import User
 from app.extenstions import ma
-from app.models import db
 
 class CreateUserSchema(ma.Schema):
   name = fields.String(required=True)
@@ -15,6 +15,9 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     model = User
     load_instance = True
     exclude = ("password",)
+    
+  email = fields.Email()
+  username = fields.Str(validate=Length(min=3))
 
 
 create_user_schema = CreateUserSchema()

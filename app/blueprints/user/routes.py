@@ -1,10 +1,11 @@
 from flask import request, jsonify, current_app
 from marshmallow import ValidationError
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from app.models import db, User
-from app.blueprints.user.schemas import user_schema, create_user_schema
+from app.blueprints.user.schemas import user_schema, users_schema, create_user_schema
 from app.blueprints.user import user_bp
-from utils.auth import hash_password, check_password, generate_token
+from utils.auth import hash_password, check_password, generate_token, token_required
 
 
 @user_bp.route("/login", methods=["POST"])
@@ -66,3 +67,37 @@ def create_user():
   except Exception as e:
     current_app.logger.error(f"Error creating user: {e}")
     return jsonify({"error": "Internal server error"}), 500
+
+
+@user_bp.route("/", methods=["PATCH"])
+@token_required
+def update_user(user_id):
+    user = db.session.get(User, user_id)
+    if not user:
+      return jsonify({"message": "User not found"}), 404
+    
+    data = request.get_json()
+    
+    if "name" in data:
+      user.name = data["name"]
+    if "email" in data:
+      user.email = data["email"]
+    if "username" in data:
+      user.username = data["username"]
+    if "password" in data:
+      return jsonify({
+        "message": "Do not use this route to update password, please use /users/changePassword"
+      }), 400
+
+    try:
+      updated_user = user_schema.load(data, instance=user, partial=True)
+      db.session.commit()
+      return jsonify(user_schema.dump(updated_user)), 200
+    except ValidationError as err:
+      return jsonify({"errors": err.messages}), 400
+    except Exception as e:
+      db.session.rollback()
+      return jsonify({
+        "error": "Internal server error",
+        "details": str(e)
+      }),500
