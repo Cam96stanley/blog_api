@@ -2,7 +2,7 @@ from flask_bcrypt import Bcrypt
 from functools import wraps
 from jose import jwt
 from datetime import datetime, timedelta, timezone
-from flask import current_app, jsonify, request
+from flask import current_app, jsonify, request, g
 import jose
 
 bcrypt = Bcrypt()
@@ -38,7 +38,8 @@ def token_required(f):
     
     try:
       data = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-      user_id = data["sub"]
+      user_id = int(data["sub"])
+      g.user_id = user_id
     
     except jose.exceptions.ExpiredSignatureError:
       return jsonify({"message": "Token has expired"}), 401
@@ -46,5 +47,5 @@ def token_required(f):
     except jose.exceptions.JWTError:
       return jsonify({"message": "Invalid token!"}), 401
     
-    return f(user_id, *args, **kwargs)
+    return f(*args, **kwargs)
   return decorated

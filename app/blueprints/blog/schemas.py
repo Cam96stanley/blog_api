@@ -15,6 +15,14 @@ class BlogSchema(ma.SQLAlchemyAutoSchema):
     model = Blog
     load_instance = True
     include_fk = True
+
+
+class ReturnBlogSchema(ma.SQLAlchemyAutoSchema):
+  class Meta:
+    model = Blog
+    load_instance = True
+    include_fk = True
+    exclude = ("author_id",)
     
   author = fields.Nested(UserSchema(only=("id", "username", "name")), dump_only=True)
 
@@ -22,3 +30,5 @@ class BlogSchema(ma.SQLAlchemyAutoSchema):
 create_blog_schema = CreateBlogSchema()
 blog_schema = BlogSchema()
 blogs_schema = BlogSchema(many=True)
+return_blog_schema = ReturnBlogSchema()
+return_blogs_schema = ReturnBlogSchema(many=True)

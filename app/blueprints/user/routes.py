@@ -1,4 +1,4 @@
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, g
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from app.models import db, User
@@ -11,13 +11,16 @@ from utils.auth import hash_password, check_password, generate_token, token_requ
 def login():
   try:
     data = request.get_json()
-
-    if not data or not data.get("email") or not data.get("password"):
+    
+    email = data.get("email", "").strip()
+    password = data.get("password", "")
+    
+    if not email or not password:
       return jsonify({"error": "Email and password are required"}), 400
     
-    user = db.session.query(User).filter_by(email=data["email"]).first()
+    user = db.session.query(User).filter_by(email=email).first()
     
-    if not user or not check_password(data["password"], user.password):
+    if not user or not check_password(password, user.password):
       return jsonify({"error": "Invalid email or password"}), 401
     
     token = generate_token(user.id)
@@ -29,6 +32,7 @@ def login():
       "user": {
         "id": user.id,
         "name": user.name,
+        "username": user.username,
         "email": user.email,
       }
     }), 200
@@ -70,30 +74,31 @@ def create_user():
 
 @user_bp.route("/", methods=["PATCH"])
 @token_required
-def update_user(user_id):
-    user = db.session.get(User, user_id)
+def update_user():
+    user = db.session.get(User, g.user_id)
     if not user:
       return jsonify({"message": "User not found"}), 404
     
     data = request.get_json()
     
-    if "name" in data:
-      user.name = data["name"]
-    if "email" in data:
-      user.email = data["email"]
-    if "username" in data:
-      user.username = data["username"]
     if "password" in data:
       return jsonify({
-        "message": "Do not use this route to update password, please use /users/changePassword"
+        "message": "Do not use this route to update password. Use /users/changePassword"
       }), 400
 
     try:
+      for field in ("id", "created_at", "password"):
+        data.pop(field, None)
+        
       updated_user = user_schema.load(data, instance=user, partial=True)
+      
       db.session.commit()
+      
       return jsonify(user_schema.dump(updated_user)), 200
+    
     except ValidationError as err:
       return jsonify({"errors": err.messages}), 400
+    
     except Exception as e:
       db.session.rollback()
       return jsonify({
