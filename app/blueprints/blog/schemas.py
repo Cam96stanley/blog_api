@@ -23,7 +23,8 @@ class ReturnBlogSchema(ma.SQLAlchemyAutoSchema):
     load_instance = True
     include_fk = True
     exclude = ("author_id",)
-    
+  
+  is_archived = fields.Boolean(dump_only=True)
   author = fields.Nested(UserSchema(only=("id", "username", "name")), dump_only=True)
 
 

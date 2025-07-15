@@ -102,3 +102,30 @@ def update_blog(blog_id):
   
   except Exception as e:
     return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
+
+@blog_bp.route("/<blog_id>/archive", methods=["PATCH"])
+@token_required
+def toggle_archive_blog(blog_id):
+  user_id = g.user_id
+  
+  blog = db.session.get(Blog, blog_id)
+  if not blog:
+    return jsonify({"message": "Blog not found"}), 404
+  
+  if blog.author_id != user_id:
+    return jsonify({"error": "Forbidden: You cannot archive this blog"}), 403
+  
+  try:
+    blog.is_archived = not blog.is_archived
+    db.session.commit()
+    
+    return jsonify({
+      "message": f"Blog has been {'archived' if blog.is_archived else 'unarchived'}", "blog": return_blog_schema.dump(blog)
+    })
+  
+  except Exception as e:
+    return jsonify({
+      "error": "Internal server error",
+      "details": str(e)
+      }), 500

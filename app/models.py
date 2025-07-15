@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, String, DateTime
+from sqlalchemy import ForeignKey, String, DateTime, Boolean
 from datetime import date, datetime, timezone
 from typing import List
 
@@ -39,6 +39,7 @@ class Blog(Base):
     DateTime(timezone=True),
     default=lambda: datetime.now(timezone.utc)
   )
+  is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
   author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
   
   author: Mapped["User"] = relationship(back_populates="blogs")
