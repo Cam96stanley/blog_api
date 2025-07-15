@@ -1,7 +1,7 @@
 from marshmallow import fields
 from marshmallow.validate import Length
 from app.extenstions import ma
-from app.models import Blog, Comment
+from app.models import Blog, Comment, Like
 from app.blueprints.user.schemas import UserSchema
 
 
@@ -52,6 +52,13 @@ class ReturnCommentSchema(ma.SQLAlchemyAutoSchema):
   user = fields.Nested(UserSchema(only=("id", "username", "name")), dump_only=True)
 
 
+class LikeSchema(ma.SQLAlchemyAutoSchema):
+  class Meta:
+    model = Like
+    load_instance = True
+    include_fk = True
+
+
 create_blog_schema = CreateBlogSchema()
 blog_schema = BlogSchema()
 blogs_schema = BlogSchema(many=True)
@@ -63,3 +70,6 @@ comment_schema = CommentSchema()
 comments_schema = CommentSchema(many=True)
 return_comment_schema = ReturnCommentSchema()
 return_comments_schema = ReturnCommentSchema(many=True)
+
+like_schema = LikeSchema()
+likes_schema = LikeSchema(many=True)

@@ -227,3 +227,36 @@ def update_comment(blog_id, comment_id):
     }), 500
 
 
+@blog_bp.route("/<int:blog_id>/comments/<int:comment_id>/archive", methods=["PATCH"])
+@token_required
+def toggle_archive_comment(blog_id, comment_id):
+  user_id = g.user_id
+  
+  blog = db.session.get(Blog, blog_id)
+  if not blog:
+    return jsonify({"message": "Blog not found"}), 404
+  
+  comment = db.session.get(Comment, comment_id)
+  if not comment:
+    return jsonify({"message": "Comment not found"}), 404
+  
+  if comment.user_id != user_id:
+    return jsonify({"error": "Forbidden: You cannot archive this comment"}), 403
+  
+  try:
+    comment.is_archived = not comment.is_archived
+    db.session.commit()
+    
+    return jsonify({
+      "message": "Comment archived" if comment.is_archived else "Comment unarchived",
+      "comment": comment_schema.dump(comment)
+    }), 200
+  
+  except Exception as e:
+    db.session.rollback()
+    return jsonify({
+      "error": "Internal server error",
+      "details": str(e)
+    }), 500
+
+
