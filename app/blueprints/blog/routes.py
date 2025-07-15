@@ -5,7 +5,7 @@ from sqlalchemy import select
 from app.blueprints.blog import blog_bp
 from utils.auth import token_required
 from app.models import db, User, Blog
-from app.blueprints.blog.schemas import create_blog_schema, blog_schema, blogs_schema, return_blog_schema, return_blogs_schema
+from app.blueprints.blog.schemas import create_blog_schema, blog_schema, return_blog_schema, return_blogs_schema
 
 
 @blog_bp.route("/", methods=["POST"])
@@ -43,7 +43,7 @@ def create_blog():
 @blog_bp.route("/", methods=["GET"])
 def get_all_blogs():
   try:
-    blogs = db.scalars(select(Blog)).all()
+    blogs = db.session.scalars(select(Blog)).all()
     if not blogs:
       return jsonify({"message": "No blogs found"}), 404
     return jsonify(return_blogs_schema.dump(blogs)), 200
