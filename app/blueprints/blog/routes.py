@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from app.blueprints.blog import blog_bp
 from utils.auth import token_required
-from app.models import db, User, Blog, Comment
+from app.models import db, User, Blog, Comment, Like
 from app.blueprints.blog.schemas import create_blog_schema, blog_schema, return_blog_schema, return_blogs_schema, create_comment_schema, return_comment_schema, return_comments_schema, comment_schema
 
 
@@ -260,3 +260,33 @@ def toggle_archive_comment(blog_id, comment_id):
     }), 500
 
 
+@blog_bp.route("/<int:blog_id>/like", methods=["POST"])
+@token_required
+def toggle_like(blog_id):
+  user_id = g.user_id
+  blog = db.session.get(Blog, blog_id)
+  
+  if not blog:
+    return jsonify({"message": "Blog not found"}), 404
+  
+  try:
+    existing_like = db.session.query(Like).filter_by(
+      user_id=user_id, post_id=blog_id
+      ).first()
+    
+    if existing_like:
+      db.session.delete(existing_like)
+      db.session.commit()
+      return jsonify({"message": "Unlike"}), 200
+    else:
+      like = Like(user_id=user_id, post_id=blog_id)
+      db.session.add(like)
+      db.session.commit()
+      return jsonify({"message": "Liked"}), 201
+  
+  except Exception as e:
+    db.session.rollback()
+    return jsonify({
+      "error": "Internal server error",
+      "details": str(e)
+    }), 500
