@@ -1,0 +1,188 @@
+swagger: "2.0"
+info:
+  title: Blog API
+  description: >
+    This is the backend to a blog app that allows users to register, create blogs, comment and like blogs...
+  version: "1.0.0"
+host: "127.0.0.1:5000"
+schemes:
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  /users/login:
+    post:
+      tags:
+        - User
+      summary: Login a user
+      description: >
+        Endpoint to login a user, all fields are required. Takes in an email and password and returns a jwt with users id, email, username, and name.
+      parameters:
+        - in: body
+          name: user
+          description: User login data
+          required: true
+          schema:
+            $ref: "#/definitions/UserLogin"
+      responses:
+        200:
+          description: Login successful
+          schema:
+            $ref: "#/definitions/LoginResponse"
+
+        400:
+          description: Missing required field
+          schema:
+            type: object
+            example:
+              error: "Email and password are required"
+
+        401:
+          description: Invalid email or password
+          schema:
+            type: object
+            example:
+              error: "Invalid email or password"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /users:
+    post:
+      tags:
+        - User
+      summary: Register a user
+      description: >
+        Endpoint accepts 'name', 'username', 'email', and 'password', all are required. Username must be between 3-150 characters. Email must be in email format (i.e 'test@test.com'). Name, username, email, and password are all strings.
+      parameters:
+        - in: body
+          name: user
+          description: User registration data
+          required: true
+          schema:
+            $ref: "#/definitions/UserRegistration"
+      responses:
+        201:
+          description: User created successfully
+          schema:
+            $ref: "#/definitions/UserResponse"
+
+        400:
+          description: Validation/Integrity error
+          schema:
+            type: object
+            example:
+              error: "Not a valid email"
+
+        409:
+          description: Email already registered
+          schema:
+            type: object
+            example:
+              error: "Email already registered"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+
+definitions:
+  UserRegistration:
+    type: object
+    required:
+      - name
+      - username
+      - email
+      - password
+    properties:
+      name:
+        type: strings
+        example: "John Doe"
+      username:
+        type: string
+        example: "jdoe20"
+      email:
+        type: string
+        format: email
+        example: "jdoe@example.com"
+      password:
+        type: string
+        format: password
+        example: "test123"
+
+  UserResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: "John Doe"
+      username:
+        type: string
+        example: "jdoe20"
+      email:
+        type: string
+        example: "jdoe@example.com"
+      password:
+        type: string
+        example: "test123"
+      created_at:
+        type: string
+        example: "2025-07-15T08:01:20"
+
+  UserLogin:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+        format: email
+        example: "jdoe@example.com"
+      password:
+        type: string
+        format: password
+        example: "test123"
+
+  LoginResponse:
+    type: object
+    properties:
+      status:
+        type: string
+        example: "success"
+      message:
+        type: string
+        example: "Login successful"
+      token:
+        type: string
+        example: "al;knv2knv[poikvnvknawnv..."
+      user:
+        type: object
+        properties:
+          id:
+            type: string
+            example: 1
+          name:
+            type: string
+            example: "John Doe"
+          username:
+            type: string
+            example: "jdoe20"
