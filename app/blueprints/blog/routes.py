@@ -44,8 +44,6 @@ def create_blog():
 def get_all_blogs():
   try:
     blogs = db.session.scalars(select(Blog)).all()
-    if not blogs:
-      return jsonify({"message": "No blogs found"}), 404
     return jsonify(return_blogs_schema.dump(blogs)), 200
   except Exception as e:
     return jsonify({
