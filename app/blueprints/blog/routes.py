@@ -57,7 +57,7 @@ def get_blog(blog_id):
   try:
     blog = db.session.get(Blog, blog_id)
     if not blog:
-      return jsonify({"message": "No blog found"}), 404
+      return jsonify({"error": "No blog found"}), 404
     
     return jsonify(return_blog_schema.dump(blog)), 200
   except Exception as e:

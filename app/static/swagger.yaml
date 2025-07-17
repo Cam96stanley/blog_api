@@ -251,6 +251,39 @@ paths:
               error: "Internal server error"
               details: "error details here..."
 
+  /blogs/{blog_id}:
+    get:
+      tags:
+        - Blog
+      summary: Get a blog by id
+      description: Takes on parameter (blog_id) and returns a single blog.
+      parameters:
+        - in: path
+          name: blog_id
+          required: true
+          type: integer
+          description: ID of the blog to retrieve
+      responses:
+        200:
+          description: blog retrieved successfully
+          schema:
+            $ref: "#/definitions/CreateBlogResponse"
+
+        404:
+          description: Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
 definitions:
   UserRegistration:
     type: object
