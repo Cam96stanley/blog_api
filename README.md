@@ -1,3 +1,21 @@
 # Blog API
 
-This is the backend for a blog api where you can create users, blog posts, comments, and like posts. Currently under development, stay tuned for updates.
+## Tech used:
+
+- Python
+- Flask
+- Flask-SQLAlchemy
+- Marshmallow
+- JWT
+- SQLite / MySQL / PostgreSQL
+- Render
+- Swagger
+
+## API Documentation
+
+Explore the full API at: [Blog API Docs](https://blog-api-6t78.onrender.com/api/docs/).
+
+## Getting Started
+
+To Install project dependencies:
+`pip install -r requirements.txt`
