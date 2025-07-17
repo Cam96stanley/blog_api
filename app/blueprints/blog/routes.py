@@ -109,7 +109,7 @@ def toggle_archive_blog(blog_id):
   
   blog = db.session.get(Blog, blog_id)
   if not blog:
-    return jsonify({"message": "Blog not found"}), 404
+    return jsonify({"error": "Blog not found"}), 404
   
   if blog.author_id != user_id:
     return jsonify({"error": "Forbidden: You cannot archive this blog"}), 403
@@ -120,7 +120,7 @@ def toggle_archive_blog(blog_id):
     
     return jsonify({
       "message": f"Blog has been {'archived' if blog.is_archived else 'unarchived'}", "blog": return_blog_schema.dump(blog)
-    })
+    }), 200
   
   except Exception as e:
     return jsonify({

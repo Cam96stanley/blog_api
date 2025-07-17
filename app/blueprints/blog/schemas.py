@@ -50,10 +50,6 @@ class ReturnCommentSchema(ma.SQLAlchemyAutoSchema):
     exclude=("user_id",)
   
   user = fields.Nested(UserSchema(only=("id", "username", "name")), dump_only=True)
-  likes_count = fields.Method("get_likes_count", dump_only=True)
-  
-  def get_likes_count(self, obj):
-    return len(obj.likes)
 
 
 class LikeSchema(ma.SQLAlchemyAutoSchema):
@@ -61,6 +57,11 @@ class LikeSchema(ma.SQLAlchemyAutoSchema):
     model = Like
     load_instance = True
     include_fk = True
+    
+    likes_count = fields.Method("get_likes_count", dump_only=True)
+  
+  def get_likes_count(self, obj):
+    return len(obj.likes)
 
 
 create_blog_schema = CreateBlogSchema()

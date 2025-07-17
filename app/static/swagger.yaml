@@ -226,22 +226,22 @@ paths:
             type: array
             items:
               $ref: "#/definitions/blogs"
-            examples:
-              application/json:
-                - id: 1
-                  author_id: 1
-                  title: "Test Blog"
-                  body: "blah blah blah"
-                  created_at: "2025-07-15T08:01:30"
-                  is_archived: false
-                  updated_at: null
-                - id: 2
-                  author_id: 1
-                  title: "Test Blog Two"
-                  body: "blah blah blah"
-                  created_at: "2025-07-17T00:26:08"
-                  is_archived: false
-                  updated_at: null
+          examples:
+            application/json:
+              - id: 1
+                author_id: 1
+                title: "Test Blog"
+                body: "blah blah blah"
+                created_at: "2025-07-15T08:01:30"
+                is_archived: false
+                updated_at: null
+              - id: 2
+                author_id: 1
+                title: "Test Blog Two"
+                body: "blah blah blah"
+                created_at: "2025-07-17T00:26:08"
+                is_archived: false
+                updated_at: null
 
         500:
           description: Internal server error
@@ -284,6 +284,174 @@ paths:
               error: "Internal server error"
               details: "error details here..."
 
+    patch:
+      tags:
+        - Blog
+      summary: Update blog by id
+      description: >
+        Authenticated route based on the author of the blog. ***Only update title, body, or both through this route*** (this is a patch request not a put request). All other properties should not be touched.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: blog_id
+          description: ID of blog to update
+          required: true
+          type: integer
+        - in: body
+          name: blog data
+          description: updated blog data
+          required: true
+          schema:
+            $ref: "#/definitions/CreateBlog"
+      responses:
+        200:
+          description: Blog updated successfully
+          schema:
+            $ref: "#/definitions/CreateBlogResponse"
+
+        400:
+          description: Validation / Integrity error
+          schema:
+            type: object
+            example:
+              error: "Error here..."
+
+        403:
+          description: Forbidden (i.e you are not the author of this blog)
+          schema:
+            type: object
+            example:
+              error: "Forbidden: You cannot edit this blog"
+
+        404:
+          description: Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /blogs/{blog_id}/archive:
+    patch:
+      tags:
+        - Blog
+      summary: Toggle archive status
+      description: >
+        Authenticated route, you must be the author of the blog to archive/unarchive the blog. Endpoint takes the blogs id that you want to toggle the archive status on. No parameters in the body, just send and it will toggle is_archived to true or false.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: blog_id
+          description: ID of blog toggle archive status
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Blog archived/unarchived successfully
+          schema:
+            $ref: "#/definitions/BlogArchiveResponse"
+
+        403:
+          description: Forbidden (i.e you are not the author of this blog)
+          schema:
+            type: object
+            example:
+              error: "Forbidden: You cannot edit this blog"
+
+        404:
+          description: Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /blogs/{blog_id}/comments:
+    post:
+      tags:
+        - Comment
+      summary: Create a comment for a blog
+      description: >
+        Authenticated route, a user must be logged in to comment on blogs. Takes one parameter in path, the id of the blog that is being commented on, and a parameter in the body, the content of the comment. Do not send any other data in the request.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: blog_id
+          required: true
+          description: ID of the blog being commented on
+        - in: body
+          name: comment data
+          required: true
+          schema:
+            type: object
+            example:
+              content: "Blah blah blah"
+      responses:
+        200:
+          description: Comment created successfully
+          schema:
+            $ref: "#/definitions/CommentResponse"
+
+    get:
+      tags:
+        - Comment
+      summary: Get all comments for a blog
+      description: Endpoint to retrieve all the comments for the blog_id passed into the path
+      parameters:
+        - in: path
+          name: blog_id
+          required: true
+          description: ID of the blog you want to retrieve comments for
+          type: integer
+      responses:
+        200:
+          description: Blog archived/unarchived successfully
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CommentResponse"
+          examples:
+            application/json:
+              - id: 1
+                content: "blah blah blah"
+                post_id: 1
+                created_at: "2025-07-17T01:56:31"
+                updated_at: "2025-07-15T08:01:30"
+                is_archived: false
+                is_updated: false
+                user:
+                  id: 1
+                  name: "John Doe"
+                  username: "jdoe2020"
+              - id: 2
+                content: "blah blah blah"
+                post_id: 1
+                created_at: "2025-07-17T01:56:31"
+                updated_at: "2025-07-15T08:01:30"
+                is_archived: false
+                is_updated: false
+                user:
+                  id: 2
+                  name: "Jane Doe"
+                  username: "jdoe2121"
+
 definitions:
   UserRegistration:
     type: object
@@ -325,6 +493,7 @@ definitions:
         example: "jdoe@example.com"
       created_at:
         type: string
+        format: date-time
         example: "2025-07-15T08:01:20"
 
   UserLogin:
@@ -385,6 +554,7 @@ definitions:
         example: "jdoe2020@example.com"
       created_at:
         type: string
+        format: date-time
         example: "2025-07-15T08:01:20"
 
   CreateBlog:
@@ -417,10 +587,92 @@ definitions:
         example: "Blah blah blah"
       created_at:
         type: string
+        format: date-time
         example: "2025-07-15T08:01:30"
       updated_at:
         type: string
+        format: date-time
+        nullable: true
         example: null
       is_archived:
         type: boolean
         example: false
+
+  BlogArchiveResponse:
+    type: object
+    properties:
+      blog:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          title:
+            type: string
+            example: "Example Blog"
+          body:
+            type: string
+            example: "Blah blah blah"
+          is_archived:
+            type: boolean
+            example: true
+          created_at:
+            type: string
+            format: date-time
+            example: "2025-07-17T01:24:59"
+          updated_at:
+            type: string
+            format: date-time
+            nullable: true
+            example: null
+          author:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "John Doe"
+              username:
+                type: string
+                example: "Jdoe2020"
+
+  CommentResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      content:
+        type: string
+        example: "Blah blah blah"
+      post_id:
+        type: integer
+        example: 1
+      is_archived:
+        type: boolean
+        example: false
+      created_at:
+        type: string
+        format: date-time
+        example: "2025-07-17T01:49:27"
+      updated_at:
+        type: string
+        format: date-time
+        example: "2025-07-17T01:49:27"
+      is_updated:
+        type: boolean
+        example: false
+      user:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "Jane Doe"
+          username:
+            type: string
+            example: "jdoe2121"
