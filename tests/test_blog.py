@@ -1,6 +1,6 @@
 import unittest
 from app import create_app
-from app.models import db, Blog, User, Comment, Like
+from app.models import db, Blog, User
 from utils.auth import generate_token, hash_password
 
 class TestBlog(unittest.TestCase):
