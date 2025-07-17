@@ -4,6 +4,7 @@ from app.models import db
 from app.extenstions import ma
 from app.blueprints.user import user_bp
 from app.blueprints.blog import blog_bp
+from flask_cors import CORS
 
 SWAGGER_URL = "/api/docs"
 API_URL = "/static/swagger.yaml"
@@ -18,6 +19,7 @@ swagger_blueprint = get_swaggerui_blueprint(
 
 def create_app(config_name):
   app = Flask(__name__)
+  CORS(app)
   app.config.from_object(f"config.{config_name}")
   
   db.init_app(app)
