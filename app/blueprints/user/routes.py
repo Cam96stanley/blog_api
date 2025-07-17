@@ -72,7 +72,7 @@ def create_user():
     return jsonify({"error": "Internal server error"}), 500
 
 
-@user_bp.route("/", methods=["PATCH"])
+@user_bp.route("/me", methods=["PATCH"])
 @token_required
 def update_user():
     user = db.session.get(User, g.user_id)

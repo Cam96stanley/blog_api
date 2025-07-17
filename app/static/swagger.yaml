@@ -69,7 +69,7 @@ paths:
         Endpoint accepts 'name', 'username', 'email', and 'password', all are required. Username must be between 3-150 characters. Email must be in email format (i.e 'test@test.com'). Name, username, email, and password are all strings.
       parameters:
         - in: body
-          name: user
+          name: user data
           description: User registration data
           required: true
           schema:
@@ -100,6 +100,125 @@ paths:
             type: object
             example:
               error: "Internal server error"
+              details: "error details here..."
+
+  /users/me:
+    patch:
+      tags:
+        - User
+      summary: Update Currently logged in user
+      description: >
+        Authenticated endpoint, user must be logged in with a valid JWT. To update a user, only enter the data that needs to be changed (this is a patch request not a put request). ***Do NOT use this route to update password, please use /users/updatePassword.***
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: body
+          name: user data
+          description: update user data
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                example: "jdoe2020"
+              email:
+                type: string
+                format: email
+                example: "jdoe2020@example.com"
+      responses:
+        200:
+          description: Successfully updated user
+          schema:
+            $ref: "#/definitions/UpdateUserResponse"
+
+        400:
+          description: >
+            Validation error (i.e you tried update your password or entered an invalid request)
+          schema:
+            type: object
+            example:
+              error: "Do not use this route to update password. Use /users/changePassword"
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /blogs:
+    post:
+      tags:
+        - Blog
+      summary: Create a blog
+      description: >
+        This is an authenticated route, only title and body are required. Other fields are not to be updated directly.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: body
+          name: blog data
+          description: Data to create a new blog entry
+          required: true
+          schema:
+            $ref: "#/definitions/CreateBlog"
+      responses:
+        201:
+          description: Blog created successfully
+          schema:
+            $ref: "#/definitions/CreateBlogResponse"
+
+        400:
+          description: Validation / Integrity error (i.e you entered invalid data as a request)
+          schema:
+            type: object
+            example:
+              error: "validation error here..."
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        404:
+          description: No user found (i.e you deleted your account and tried creating a blog post)
+          schema:
+            type: object
+            example:
+              message: "No user found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+    get:
+      tags:
+        - Blog
+      summary:
+      description:
 
 definitions:
   UserRegistration:
@@ -140,9 +259,6 @@ definitions:
       email:
         type: string
         example: "jdoe@example.com"
-      password:
-        type: string
-        example: "test123"
       created_at:
         type: string
         example: "2025-07-15T08:01:20"
@@ -186,3 +302,36 @@ definitions:
           username:
             type: string
             example: "jdoe20"
+
+  UpdateUserResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: "John Doe"
+      username:
+        type: string
+        example: "jdoe2020"
+      email:
+        type: string
+        format: email
+        example: "jdoe2020@example.com"
+      created_at:
+        type: string
+        example: "2025-07-15T08:01:20"
+
+  CreateBlog:
+    type: object
+    required:
+      - title
+      - body
+    properties:
+      title:
+        type: string
+        example: "Example Blog Title"
+      body:
+        type: string
+        example: "Body of blog is here..."
