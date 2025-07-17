@@ -8,7 +8,7 @@
 - Marshmallow
 - JWT
 - SQLite / MySQL / PostgreSQL
-- Render
+- Render / Github Actions
 - Swagger
 
 ## API Documentation
