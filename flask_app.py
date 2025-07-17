@@ -4,7 +4,7 @@ from app.models import db
 
 load_dotenv()
 
-app = create_app("DevelopmentConfig")
+app = create_app("TestingConfig")
 
 with app.app_context():
   db.drop_all()
