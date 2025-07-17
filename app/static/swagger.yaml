@@ -317,6 +317,17 @@ paths:
             example:
               error: "Error here..."
 
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
         403:
           description: Forbidden (i.e you are not the author of this blog)
           schema:
@@ -359,6 +370,17 @@ paths:
           description: Blog archived/unarchived successfully
           schema:
             $ref: "#/definitions/BlogArchiveResponse"
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
 
         403:
           description: Forbidden (i.e you are not the author of this blog)
@@ -409,6 +431,32 @@ paths:
           schema:
             $ref: "#/definitions/CommentResponse"
 
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        404:
+          description: Comment / Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
     get:
       tags:
         - Comment
@@ -451,6 +499,218 @@ paths:
                   id: 2
                   name: "Jane Doe"
                   username: "jdoe2121"
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        404:
+          description: Comment / Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /blogs/{blog_id}/comments/{comment_id}:
+    patch:
+      tags:
+        - Comment
+      summary: Update comment
+      description: Enpoint to update the content of a comment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: blog_id
+          required: true
+          description: ID of the blog that the comment is attached to
+          type: integer
+        - in: path
+          name: comment_id
+          required: true
+          description: ID of the comment to update
+          type: integer
+        - in: body
+          name: comment_id
+          required: true
+          description: ID of the comment being updated
+          type: integer
+          schema:
+            type: object
+            example:
+              content: "Blah Blah Blah Blah"
+      responses:
+        200:
+          description: Successfully updated comment
+          schema:
+            $ref: "#/definitions/CommentResponse"
+
+        400:
+          description: Validation / Integrity error
+          schema:
+            type: object
+            example:
+              error: "Error goes here..."
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            example:
+              error: "Forbidden: You cannot edit this comment"
+
+        404:
+          description: Comment / Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /blogs/{blog_id}/comments/{comment_id}/archive:
+    patch:
+      tags:
+        - Comment
+      summary: Archive/unarchive comment
+      description: >
+        Enpoint to archive and unarchive a comment, takes in two path parameters, blog_id of the blog that the comment is attached to and comment_id, the id of the comment that you are updating.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: blog_id
+          required: true
+          description: ID of the blog that the comment to archive
+          type: integer
+        - in: path
+          name: comment_id
+          required: true
+          description: ID of the comment to update
+          type: integer
+      responses:
+        200:
+          description: Archived / Unarchived successfully
+          schema:
+            $ref: "#/definitions/ArchiveCommentResponse"
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        403:
+          description: Forbidden
+          schema:
+            type: object
+            example:
+              error: "Forbidden: You cannot archive this comment"
+
+        404:
+          description: Comment / Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
+
+  /blogs/{blog_id}/likes:
+    post:
+      tags:
+        - Like
+      summary: Like / Unlike a blog
+      description: Authenticated route. This route only takes a path parameter, the blog_id for the blog you are wanting to like or unlike.
+      parameters:
+        - in: path
+          name: blog_id
+          description: ID of the blog to like or unlike
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successfully unliked a blog
+          schema:
+            type: object
+            example:
+              message: "Unlike"
+
+        201:
+          description: Successfully liked a blog
+          schema:
+            type: object
+            example:
+              message: "Liked"
+
+        401:
+          description: >
+            Authentication failed. Possible reasons include:
+              - Missing token
+              - Invalid token
+              - Expired token
+          schema:
+            type: object
+            example:
+              error: "Token is missing"
+
+        404:
+          description: Blog not found
+          schema:
+            type: object
+            example:
+              error: "No blog found"
+
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            example:
+              error: "Internal server error"
+              details: "error details here..."
 
 definitions:
   UserRegistration:
@@ -653,6 +913,45 @@ definitions:
       is_archived:
         type: boolean
         example: false
+      created_at:
+        type: string
+        format: date-time
+        example: "2025-07-17T01:49:27"
+      updated_at:
+        type: string
+        format: date-time
+        example: "2025-07-17T01:49:27"
+      is_updated:
+        type: boolean
+        example: false
+      user:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "Jane Doe"
+          username:
+            type: string
+            example: "jdoe2121"
+
+  ArchiveCommentResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      content:
+        type: string
+        example: "Blah blah blah"
+      post_id:
+        type: integer
+        example: 1
+      is_archived:
+        type: boolean
+        example: true
       created_at:
         type: string
         format: date-time
